@@ -1,5 +1,92 @@
 <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Annual Broiler Health Monitor</title><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script><style>
-:root{--b:#27308b;--g:#6db23e;--t:#016938;--bg:#f4f6f8;--border:#dfe4ea}*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial;background:var(--bg);color:#27313d}header{padding:22px 30px;color:white;background:linear-gradient(120deg,#15256f,var(--b) 58%,var(--t))}header h1{margin:0;font-size:27px}header small{opacity:.82}.wrap{max-width:1500px;margin:auto;padding:18px}.filters{display:grid;grid-template-columns:repeat(8,minmax(110px,1fr));gap:9px;background:white;padding:14px;border-radius:12px;position:sticky;top:0;z-index:5;box-shadow:0 2px 10px #20305016}.filters label{font-size:10px;font-weight:700;color:#687383;text-transform:uppercase}.filters select{width:100%;margin-top:4px;padding:8px;border:1px solid var(--border);border-radius:7px;background:white}.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:14px 0}.kpi,.card{background:white;border-radius:12px;box-shadow:0 2px 9px #20305012}.kpi{padding:14px;border-top:4px solid var(--g)}.kpi b{display:block;font-size:24px;color:var(--b)}.kpi span,.sub{font-size:12px;color:#737d89}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.tab{border:0;border-radius:18px;padding:8px 13px;background:#e8ebf4;color:var(--b);font-weight:700}.tab.active{background:var(--b);color:white}.grid{display:grid;grid-template-columns:2fr 1fr;gap:14px}.card{padding:16px;min-height:345px}.card h3{color:var(--b);margin:0 0 3px}.box{height:290px}.full{grid-column:1/-1}.table{max-height:320px;overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px;border-bottom:1px solid #edf0f3;text-align:right}th:first-child,td:first-child{text-align:left}th{position:sticky;top:0;background:#f8f9fb}.note{text-align:center;color:#747d88;font-size:11px;margin:16px}@media(max-width:1050px){.filters{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}.full{grid-column:auto}.kpis{grid-template-columns:repeat(2,1fr)}}
+:root{--b:#27308b;--g:#6db23e;--t:#016938;--bg:#f4f6f8;--border:#dfe4ea}*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial;background:var(--bg);color:#27313d}header{padding:22px 30px;color:white;background:linear-gradient(120deg,#15256f,var(--b) 58%,var(--t))}header h1{margin:0;font-size:27px}header small{opacity:.82}
+.wrap{
+    width:100%;
+    max-width:100%;
+    margin:auto;
+    padding:16px;
+}
+
+.tabs{
+    display:flex;
+    gap:7px;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    margin:12px 0;
+    scrollbar-width:thin;
+}
+
+.tab{
+    flex-shrink:0;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:minmax(0,2fr) minmax(0,1fr);
+    gap:14px;
+    width:100%;
+}
+
+.card{
+    padding:16px;
+    min-height:345px;
+    overflow:hidden;
+}
+
+.box{
+    width:100%;
+    height:320px;
+}
+
+canvas{
+    max-width:100% !important;
+}
+
+.filters select{
+    min-width:0;
+}
+
+@media(max-width:1400px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .filters{
+        grid-template-columns:repeat(4,1fr);
+    }
+}
+
+@media(max-width:900px){
+
+    .filters{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .kpis{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .full{
+        grid-column:auto;
+    }
+}  
+{.filters{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}.full{grid-column:auto}.kpis{grid-template-columns:repeat(2,1fr)}}
 </style></head><body><header><h1>Annual Broiler Health Monitor</h1><small>Interactive dashboard • Thailand • Phibro visual style</small></header><main class="wrap"><section class="filters"><label>Customer<select id="customer"></select></label><label>Year<select id="year"></select></label><label>Month<select id="month"></select></label><label>Region<select id="region"></select></label><label>Farm<select id="farm"></select></label><label>Age group<select id="age"><option>All</option><option>0-21</option><option>22-28</option><option>29-35</option><option>36+</option></select></label><label>Parameter<select id="param"></select></label><label>Aggregation<select id="agg"><option value="score">Mean score</option><option value="prev">Prevalence</option><option value="metric">Mean metric</option></select></label></section><section class="kpis"><div class="kpi"><b id="sessions"></b><span>Monitoring sessions</span></div><div class="kpi"><b id="farms"></b><span>Farms</span></div><div class="kpi"><b id="houses"></b><span>Farm-house combinations</span></div><div class="kpi"><b id="birds"></b><span>Unique bird records</span></div><div class="kpi"><b id="avg"></b><span id="avglab">Selected average</span></div></section><div id="tabs" class="tabs"></div><section class="grid"><div class="card"><h3 id="tt">Monthly trend</h3><div class="sub">Monthly value with overall reference line</div><div class="box"><canvas id="trend"></canvas></div></div><div class="card"><h3>Regional comparison</h3><div class="sub">Average of the selected parameter</div><div class="box"><canvas id="regional"></canvas></div></div><div class="card"><h3>Age distribution</h3><div class="sub">Unique birds represented at each age</div><div class="box"><canvas id="ages"></canvas></div></div><div class="card"><h3>System parameter profile</h3><div class="sub">Highest averages in the selected system</div><div class="box"><canvas id="profile"></canvas></div></div><div class="card full"><h3>Monthly detail</h3><div class="table"><table><thead><tr><th>Period</th><th>Mean</th><th>Prevalence</th><th>Records</th><th>Farms</th></tr></thead><tbody id="detail"></tbody></table></div></div></section><div class="note">Filters apply consistently to KPI cards, charts and the detail table.</div></main><script>
-const DATA=__DATA__,META=__META__,SYSTEMS=__SYSTEMS__,C={b:'#27308b',g:'#6db23e',t:'#016938',o:'#f3aa2b'};let sys='All',charts={};const $=x=>document.getElementById(x),uniq=a=>[...new Set(a.filter(x=>x!==''&&x!=null))];function options(id,a){$(id).innerHTML='<option>All</option>'+a.map(x=>`<option>${x}</option>`).join('')}options('customer',uniq(DATA.map(r=>r[10])).sort());options('year',uniq(DATA.map(r=>r[12])).sort());options('month',uniq(DATA.map(r=>r[13])).sort((a,b)=>a-b));options('region',uniq(DATA.map(r=>r[9])).sort());options('farm',uniq(DATA.map(r=>r[0])).sort());function lab(v){return META[v]?.desc||v}function setParams(){let a=Object.keys(META).filter(v=>sys==='All'||META[v].system===sys).sort((a,b)=>lab(a).localeCompare(lab(b)));$('param').innerHTML=a.map(v=>`<option value="${v}">${lab(v)} (${v})</option>`).join('');let preferred=sys==='Immune'?'BD3':sys==='Coccidiosis'?'gAC':null;if(preferred&&a.includes(preferred))$('param').value=preferred}$('tabs').innerHTML=SYSTEMS.map((s,i)=>`<button class="tab ${i?'':'active'}" data-s="${s}">${s}</button>`).join('');$('tabs').onclick=e=>{if(!e.target.dataset.s)return;sys=e.target.dataset.s;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.s===sys));setParams();update()};setParams();document.querySelectorAll('select').forEach(x=>x.onchange=update);function rows(ignore=false){let cu=$('customer').value,y=$('year').value,m=$('month').value,re=$('region').value,f=$('farm').value,a=$('age').value,p=$('param').value;return DATA.filter(r=>(cu==='All'||r[10]===cu)&&(y==='All'||r[12]==y)&&(m==='All'||r[13]==m)&&(re==='All'||r[9]===re)&&(f==='All'||r[0]===f)&&(sys==='All'||r[8]===sys)&&(ignore||r[4]===p)&&(a==='All'||a==='0-21'&&r[3]<=21||a==='22-28'&&r[3]>=22&&r[3]<=28||a==='29-35'&&r[3]>=29&&r[3]<=35||a==='36+'&&r[3]>=36))}function val(r,mode){return mode==='prev'?r[17]:mode==='metric'?r[6]:r[5]}function mean(a){a=a.filter(Number.isFinite);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}function group(a,k,mode){let g={};a.forEach(r=>(g[k(r)]??=[]).push(val(r,mode)));return Object.fromEntries(Object.entries(g).map(([k,v])=>[k,mean(v)]))}function draw(id,type,labels,sets,extra={}){charts[id]?.destroy();charts[id]=new Chart($(id),{type,data:{labels,datasets:sets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,grid:{color:'#edf0f4'}},x:{grid:{display:false}}},...extra}})}const fmt=x=>x==null?'–':x.toFixed(x>=100?0:2);function update(){let a=rows(),all=rows(true),mode=$('agg').value,p=$('param').value;$('sessions').textContent=uniq(a.map(r=>r[15])).length;$('farms').textContent=uniq(a.map(r=>r[0])).length;$('houses').textContent=uniq(a.map(r=>r[0]+'|'+r[1])).length;$('birds').textContent=uniq(a.map(r=>r[16]+'|'+r[0]+'|'+r[1]+'|'+r[2])).length;let av=mean(a.map(r=>val(r,mode)));$('avg').textContent=fmt(av);$('avglab').textContent=lab(p)+' • '+$('agg').selectedOptions[0].text;$('tt').textContent=lab(p)+' monthly trend';let g=group(a,r=>`${r[12]}-${String(r[13]).padStart(2,'0')}`,mode),L=Object.keys(g).sort(),overall=mean(Object.values(g));draw('trend','line',L,[{label:lab(p),data:L.map(k=>g[k]),borderColor:C.g,backgroundColor:'#6db23e22',fill:true,tension:.25},{label:'Overall average',data:L.map(()=>overall),borderColor:C.b,borderDash:[7,5],pointRadius:0}]);let rg=group(a,r=>r[9]||'N/A',mode),RL=Object.keys(rg);draw('regional','bar',RL,[{label:'Average',data:RL.map(k=>rg[k]),backgroundColor:[C.b,C.g,C.t,C.o]}]);let ag={};all.forEach(r=>{if(Number.isFinite(r[3]))(ag[r[3]]??=new Set()).add(r[16]+'|'+r[0]+'|'+r[1]+'|'+r[2])});let AL=Object.keys(ag).sort((x,y)=>x-y);draw('ages','bar',AL,[{label:'Unique birds',data:AL.map(k=>ag[k].size),backgroundColor:C.b}]);let pg=group(all,r=>r[4],mode),PL=Object.keys(pg).filter(k=>pg[k]!=null).sort((x,y)=>pg[y]-pg[x]).slice(0,12).reverse();draw('profile','bar',PL.map(lab),[{label:'Average',data:PL.map(k=>pg[k]),backgroundColor:C.g}],{indexAxis:'y'});let sm={};a.forEach(r=>(sm[`${r[12]}-${String(r[13]).padStart(2,'0')}`]??=[]).push(r));$('detail').innerHTML=Object.keys(sm).sort().map(k=>{let z=sm[k],pv=mean(z.map(r=>r[17]));return `<tr><td>${k}</td><td>${fmt(mean(z.map(r=>val(r,mode))))}</td><td>${pv==null?'–':(pv*100).toFixed(1)+'%'}</td><td>${z.length}</td><td>${uniq(z.map(r=>r[0])).length}</td></tr>`}).join('')||'<tr><td colspan="5">No matching data</td></tr>'}update();
+const DATA=__DATA__,META=__META__,SYSTEMS=__SYSTEMS__,C={b:'#27308b',g:'#6db23e',t:'#016938',o:'#f3aa2b'};let sys='All',charts={};const $=x=>document.getElementById(x),uniq=a=>[...new Set(a.filter(x=>x!==''&&x!=null))];function options(id,a){$(id).innerHTML='<option>All</option>'+a.map(x=>`<option>${x}</option>`).join('')}options('customer',uniq(DATA.map(r=>r[10])).sort());options('year',uniq(DATA.map(r=>r[12])).sort());options('month',uniq(DATA.map(r=>r[13])).sort((a,b)=>a-b));options('region',uniq(DATA.map(r=>r[9])).sort());options('farm',uniq(DATA.map(r=>r[0])).sort());function lab(v){return META[v]?.desc||v}function setParams(){let a=Object.keys(META).filter(v=>sys==='All'||META[v].system===sys).sort((a,b)=>lab(a).localeCompare(lab(b)));$('param').innerHTML=a.map(v=>`<option value="${v}">${lab(v)} (${v})</option>`).join('');let preferred=sys==='Immune'?'BD3':sys==='Coccidiosis'?'gAC':null;if(preferred&&a.includes(preferred))$('param').value=preferred}
+function systemDisplayName(name){
+
+    if(name==="General Observation & Welfare")
+        return "General & Welfare";
+
+    return name;
+}
+
+$('tabs').innerHTML=SYSTEMS.map((s,i)=>
+`<button class="tab ${i?'':'active'}"
+data-s="${s}">
+${systemDisplayName(s)}
+</button>`
+).join('');
+  $('tabs').onclick=e=>{if(!e.target.dataset.s)return;sys=e.target.dataset.s;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.s===sys));setParams();update()};setParams();document.querySelectorAll('select').forEach(x=>x.onchange=update);function rows(ignore=false){let cu=$('customer').value,y=$('year').value,m=$('month').value,re=$('region').value,f=$('farm').value,a=$('age').value,p=$('param').value;return DATA.filter(r=>(cu==='All'||r[10]===cu)&&(y==='All'||r[12]==y)&&(m==='All'||r[13]==m)&&(re==='All'||r[9]===re)&&(f==='All'||r[0]===f)&&(sys==='All'||r[8]===sys)&&(ignore||r[4]===p)&&(a==='All'||a==='0-21'&&r[3]<=21||a==='22-28'&&r[3]>=22&&r[3]<=28||a==='29-35'&&r[3]>=29&&r[3]<=35||a==='36+'&&r[3]>=36))}function val(r,mode){return mode==='prev'?r[17]:mode==='metric'?r[6]:r[5]}function mean(a){a=a.filter(Number.isFinite);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}function group(a,k,mode){let g={};a.forEach(r=>(g[k(r)]??=[]).push(val(r,mode)));return Object.fromEntries(Object.entries(g).map(([k,v])=>[k,mean(v)]))}function draw(id,type,labels,sets,extra={}){charts[id]?.destroy();charts[id]=new Chart($(id),{type,data:{labels,datasets:sets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,grid:{color:'#edf0f4'}},x:{grid:{display:false}}},...extra}})}const fmt=x=>x==null?'–':x.toFixed(x>=100?0:2);function update(){let a=rows(),all=rows(true),mode=$('agg').value,p=$('param').value;$('sessions').textContent=uniq(a.map(r=>r[15])).length;$('farms').textContent=uniq(a.map(r=>r[0])).length;$('houses').textContent=uniq(a.map(r=>r[0]+'|'+r[1])).length;$('birds').textContent=uniq(a.map(r=>r[16]+'|'+r[0]+'|'+r[1]+'|'+r[2])).length;let av=mean(a.map(r=>val(r,mode)));$('avg').textContent=fmt(av);$('avglab').textContent=lab(p)+' • '+$('agg').selectedOptions[0].text;$('tt').textContent=lab(p)+' monthly trend';let g=group(a,r=>`${r[12]}-${String(r[13]).padStart(2,'0')}`,mode),L=Object.keys(g).sort(),overall=mean(Object.values(g));draw('trend','line',L,[{label:lab(p),data:L.map(k=>g[k]),borderColor:C.g,backgroundColor:'#6db23e22',fill:true,tension:.25},{label:'Overall average',data:L.map(()=>overall),borderColor:C.b,borderDash:[7,5],pointRadius:0}]);let rg=group(a,r=>r[9]||'N/A',mode),RL=Object.keys(rg);draw('regional','bar',RL,[{label:'Average',data:RL.map(k=>rg[k]),backgroundColor:[C.b,C.g,C.t,C.o]}]);let ag={};all.forEach(r=>{if(Number.isFinite(r[3]))(ag[r[3]]??=new Set()).add(r[16]+'|'+r[0]+'|'+r[1]+'|'+r[2])});let AL=Object.keys(ag).sort((x,y)=>x-y);draw('ages','bar',AL,[{label:'Unique birds',data:AL.map(k=>ag[k].size),backgroundColor:C.b}]);let pg=group(all,r=>r[4],mode),PL=Object.keys(pg).filter(k=>pg[k]!=null).sort((x,y)=>pg[y]-pg[x]).slice(0,12).reverse();draw('profile','bar',PL.map(lab),[{label:'Average',data:PL.map(k=>pg[k]),backgroundColor:C.g}],{indexAxis:'y'});let sm={};a.forEach(r=>(sm[`${r[12]}-${String(r[13]).padStart(2,'0')}`]??=[]).push(r));$('detail').innerHTML=Object.keys(sm).sort().map(k=>{let z=sm[k],pv=mean(z.map(r=>r[17]));return `<tr><td>${k}</td><td>${fmt(mean(z.map(r=>val(r,mode))))}</td><td>${pv==null?'–':(pv*100).toFixed(1)+'%'}</td><td>${z.length}</td><td>${uniq(z.map(r=>r[0])).length}</td></tr>`}).join('')||'<tr><td colspan="5">No matching data</td></tr>'}update();
 </script></body></html>
