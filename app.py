@@ -13,8 +13,8 @@ BUNDLED=(BASE/'data.xlsx').read_bytes()
 ADMIN_PASSWORD='0000'  # Fixed admin password requested by owner.
 
 # Fill these once before deployment. The Excel workbook is the source of truth.
-GITHUB_OWNER='CHANGE_ME'
-GITHUB_REPO='CHANGE_ME'
+GITHUB_OWNER='TheCombozer'
+GITHUB_REPO='pahc-hmd'
 GITHUB_BRANCH='main'
 GITHUB_DATA_PATH='data.xlsx'
 API_VERSION='2022-11-28'
